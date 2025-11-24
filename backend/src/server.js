@@ -16,13 +16,17 @@ import otpRoutes from "./routes/otp.route.js";
 
 
 const app = express();
-const PORT = process.env.PORT || 5001;
 
+// Use the PORT that the host (Render) provides. Local fallback 5001 is fine for local dev.
+const PORT = process.env.PORT || 5001;
 const __dirname = path.resolve();
+
+// Make the frontend origin configurable via env var (set FRONTEND_URL in Render)
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: FRONTEND_URL,
     credentials: true, // allow frontend to send cookies
   })
 );
@@ -63,6 +67,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api", otpRoutes);
 
 if (process.env.NODE_ENV === "production") {
+  // serve frontend build
   app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
   app.get("*", (req, res) => {
@@ -70,7 +75,22 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  connectDB();
-});
+/**
+ * Start sequence:
+ * 1. connect to DB
+ * 2. start listening on the PORT (bind 0.0.0.0 for container hosts)
+ */
+async function startServer() {
+  try {
+    await connectDB();
+    // bind to 0.0.0.0 so platforms (Render/Docker) can detect and route to the port
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server is running on port ${PORT} (bound to 0.0.0.0)`);
+    });
+  } catch (err) {
+    console.error("Failed to start server (DB connection or other startup error):", err);
+    process.exit(1); // crash so the platform restarts or shows the failure
+  }
+}
+
+startServer();
