@@ -15,12 +15,10 @@ import { capitialize } from "../lib/utils";
 import FriendCard, { getLanguageFlag } from "../components/FriendCard";
 import NoFriendsFound from "../components/NoFriendsFound";
 
-// fallback image
 const TEST_IMAGE = "/mnt/data/0256f8e0-8635-4e6a-b078-88aa611c5420.png";
-
 const PAGE_SIZE = 4;
 
-// ⭐ NEW: Zoom Modal Component
+// Zoom Modal
 const ImageZoomModal = ({ imgSrc, onClose }) => {
   if (!imgSrc) return null;
 
@@ -37,14 +35,11 @@ const ImageZoomModal = ({ imgSrc, onClose }) => {
   );
 };
 
-// keyframes
 const HomePage = () => {
   const queryClient = useQueryClient();
   const learnersRef = useRef(null);
 
-  // ⭐ NEW: zoom state
   const [zoomImage, setZoomImage] = useState(null);
-
   const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());
 
   const [friendsSearch, setFriendsSearch] = useState("");
@@ -96,7 +91,10 @@ const HomePage = () => {
     );
   };
 
-  const filteredFriends = useMemo(() => filterUsers(friends, friendsSearch), [friends, friendsSearch]);
+  const filteredFriends = useMemo(
+    () => filterUsers(friends, friendsSearch),
+    [friends, friendsSearch]
+  );
   const filteredLearners = useMemo(
     () => filterUsers(recommendedUsers, learnersSearch),
     [recommendedUsers, learnersSearch]
@@ -129,20 +127,21 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen w-full bg-[#0f121a] text-white">
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="container mx-auto space-y-10">
-
+      <div className="px-3 py-4 sm:px-4 sm:py-6 lg:px-8 lg:py-8">
+        <div className="max-w-6xl mx-auto space-y-8 sm:space-y-10">
           {/* FRIENDS SECTION */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Your Friends</h2>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">
+              Your Friends
+            </h2>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <input
                 type="text"
                 value={friendsSearch}
                 onChange={(e) => setFriendsSearch(e.target.value)}
                 placeholder="Search friends..."
-                className="input input-sm input-bordered bg-slate-700 text-white"
+                className="input input-sm input-bordered bg-slate-700 text-white w-full xs:w-auto"
               />
               <button
                 className="btn btn-ghost btn-sm"
@@ -154,7 +153,10 @@ const HomePage = () => {
               >
                 Clear
               </button>
-              <button className="btn btn-outline btn-sm" onClick={() => setShowAllFriends((s) => !s)}>
+              <button
+                className="btn btn-outline btn-sm"
+                onClick={() => setShowAllFriends((s) => !s)}
+              >
                 {showAllFriends ? "Paginate" : "Show All"}
               </button>
               <Link to="/notifications" className="btn btn-outline btn-sm">
@@ -173,16 +175,14 @@ const HomePage = () => {
             <NoFriendsFound />
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 {paginatedFriends.map((friend) => (
-                  <div key={friend._id} className="card bg-slate-800">
+                  <div key={friend._id} className="card bg-slate-800/80 shadow-sm">
                     <div className="card-body p-0">
-
-                      {/* ⭐ Zoomable Profile Pic */}
                       <img
                         src={friend.profilePic || TEST_IMAGE}
                         onClick={() => setZoomImage(friend.profilePic || TEST_IMAGE)}
-                        className="w-full h-40 object-cover rounded-t-lg cursor-pointer hover:scale-[1.02] transition-transform"
+                        className="w-full h-32 sm:h-36 md:h-40 object-cover rounded-t-lg cursor-pointer hover:scale-[1.02] transition-transform"
                       />
 
                       <FriendCard friend={friend} />
@@ -192,13 +192,23 @@ const HomePage = () => {
               </div>
 
               {/* FRIENDS PAGINATION */}
-              <div className="flex items-center justify-between mt-4">
-                <div className="flex items-center gap-3">
-                  <button className="btn btn-sm" onClick={() => setFriendsPage((p) => p - 1)} disabled={showAllFriends || friendsPage <= 1}>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-3 sm:mt-4 gap-2">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <button
+                    className="btn btn-sm"
+                    onClick={() => setFriendsPage((p) => p - 1)}
+                    disabled={showAllFriends || friendsPage <= 1}
+                  >
                     Prev
                   </button>
-                  <div className="text-sm text-white/80">Page {friendsPage} / {friendsTotalPages}</div>
-                  <button className="btn btn-sm" onClick={() => setFriendsPage((p) => p + 1)} disabled={showAllFriends || friendsPage >= friendsTotalPages}>
+                  <div className="text-sm text-white/80">
+                    Page {friendsPage} / {friendsTotalPages}
+                  </div>
+                  <button
+                    className="btn btn-sm"
+                    onClick={() => setFriendsPage((p) => p + 1)}
+                    disabled={showAllFriends || friendsPage >= friendsTotalPages}
+                  >
                     Next
                   </button>
                 </div>
@@ -208,19 +218,23 @@ const HomePage = () => {
 
           {/* MEET NEW LEARNERS */}
           <section ref={learnersRef} id="learners">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold">Meet New Learners</h2>
-                <p className="opacity-70">Discover perfect language exchange partners</p>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">
+                  Meet New Learners
+                </h2>
+                <p className="text-sm sm:text-base opacity-70">
+                  Discover perfect language exchange partners
+                </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <input
                   type="text"
                   value={learnersSearch}
                   onChange={(e) => setLearnersSearch(e.target.value)}
                   placeholder="Search learners..."
-                  className="input input-sm input-bordered bg-slate-700 text-white"
+                  className="input input-sm input-bordered bg-slate-700 text-white w-full xs:w-auto"
                 />
                 <button
                   className="btn btn-ghost btn-sm"
@@ -232,7 +246,10 @@ const HomePage = () => {
                 >
                   Clear
                 </button>
-                <button className="btn btn-outline btn-sm" onClick={() => setShowAllLearners((s) => !s)}>
+                <button
+                  className="btn btn-outline btn-sm"
+                  onClick={() => setShowAllLearners((s) => !s)}
+                >
                   {showAllLearners ? "Paginate" : "Show All"}
                 </button>
               </div>
@@ -243,32 +260,40 @@ const HomePage = () => {
                 <span className="loading loading-spinner loading-lg" />
               </div>
             ) : filteredLearners.length === 0 ? (
-              <div className="card bg-slate-800 p-6 text-center">
-                <h3 className="font-semibold text-lg mb-2">No recommendations available</h3>
+              <div className="card bg-slate-800/80 p-6 text-center">
+                <h3 className="font-semibold text-lg mb-2">
+                  No recommendations available
+                </h3>
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                   {paginatedLearners.map((user) => {
                     const hasSent = outgoingRequestsIds.has(user._id);
 
                     return (
-                      <div key={user._id} className="card bg-slate-800 hover:shadow-xl transition-all">
-                        <div className="card-body p-5 space-y-4">
-
-                          {/* ⭐ Zoomable Profile Pic */}
-                          <div className="avatar size-16 rounded-full">
+                      <div
+                        key={user._id}
+                        className="card bg-slate-800/80 hover:shadow-xl transition-all text-sm sm:text-base"
+                      >
+                        <div className="card-body p-4 sm:p-5 space-y-3 sm:space-y-4">
+                          {/* Zoomable Profile Pic */}
+                          <div className="avatar size-12 sm:size-16 rounded-full">
                             <img
                               src={user.profilePic || TEST_IMAGE}
-                              onClick={() => setZoomImage(user.profilePic || TEST_IMAGE)}
+                              onClick={() =>
+                                setZoomImage(user.profilePic || TEST_IMAGE)
+                              }
                               className="cursor-pointer hover:scale-105 transition-transform"
                             />
                           </div>
 
                           <div>
-                            <h3 className="font-semibold text-lg">{user.fullName}</h3>
+                            <h3 className="font-semibold text-sm sm:text-lg">
+                              {user.fullName}
+                            </h3>
                             {user.location && (
-                              <div className="text-xs opacity-70 mt-1 flex items-center">
+                              <div className="text-[11px] sm:text-xs opacity-70 mt-1 flex items-center">
                                 <MapPinIcon className="size-3 mr-1" />
                                 {user.location}
                               </div>
@@ -276,32 +301,41 @@ const HomePage = () => {
                           </div>
 
                           <div className="flex flex-wrap gap-1.5">
-                            <span className="badge badge-secondary">
-                              {getLanguageFlag(user.nativeLanguage)} Native: {capitialize(user.nativeLanguage)}
+                            <span className="badge badge-secondary badge-sm">
+                              {getLanguageFlag(user.nativeLanguage)} Native:{" "}
+                              {capitialize(user.nativeLanguage)}
                             </span>
-                            <span className="badge badge-outline">
-                              {getLanguageFlag(user.learningLanguage)} Learning: {capitialize(user.learningLanguage)}
+                            <span className="badge badge-outline badge-sm">
+                              {getLanguageFlag(user.learningLanguage)} Learning:{" "}
+                              {capitialize(user.learningLanguage)}
                             </span>
                           </div>
 
-                          {user.bio && <p className="text-sm opacity-70">{user.bio}</p>}
+                          {user.bio && (
+                            <p className="text-xs sm:text-sm opacity-70">
+                              {user.bio}
+                            </p>
+                          )}
 
                           <button
-                            className={`btn w-full mt-2 ${hasSent ? "btn-disabled" : "btn-primary"}`}
+                            className={`btn btn-sm sm:btn-md w-full mt-1 sm:mt-2 ${
+                              hasSent ? "btn-disabled" : "btn-primary"
+                            }`}
                             onClick={() => sendRequestMutation(user._id)}
                             disabled={hasSent || isPending}
                           >
                             {hasSent ? (
                               <>
-                                <CheckCircleIcon className="size-4 mr-2" /> Request Sent
+                                <CheckCircleIcon className="size-4 mr-2" /> Request
+                                Sent
                               </>
                             ) : (
                               <>
-                                <UserPlusIcon className="size-4 mr-2" /> Send Friend Request
+                                <UserPlusIcon className="size-4 mr-2" /> Send Friend
+                                Request
                               </>
                             )}
                           </button>
-
                         </div>
                       </div>
                     );
@@ -309,13 +343,23 @@ const HomePage = () => {
                 </div>
 
                 {/* PAGINATION */}
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center gap-3">
-                    <button className="btn btn-sm" onClick={() => setLearnersPage((p) => p - 1)} disabled={showAllLearners || learnersPage <= 1}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-3 sm:mt-4 gap-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <button
+                      className="btn btn-sm"
+                      onClick={() => setLearnersPage((p) => p - 1)}
+                      disabled={showAllLearners || learnersPage <= 1}
+                    >
                       Prev
                     </button>
-                    <div className="text-sm text-white/80">Page {learnersPage} / {learnersTotalPages}</div>
-                    <button className="btn btn-sm" onClick={() => setLearnersPage((p) => p + 1)} disabled={showAllLearners || learnersPage >= learnersTotalPages}>
+                    <div className="text-sm text-white/80">
+                      Page {learnersPage} / {learnersTotalPages}
+                    </div>
+                    <button
+                      className="btn btn-sm"
+                      onClick={() => setLearnersPage((p) => p + 1)}
+                      disabled={showAllLearners || learnersPage >= learnersTotalPages}
+                    >
                       Next
                     </button>
                   </div>
@@ -326,7 +370,6 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* ⭐ ZOOM MODAL */}
       <ImageZoomModal imgSrc={zoomImage} onClose={() => setZoomImage(null)} />
     </div>
   );

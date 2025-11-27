@@ -1,48 +1,37 @@
+// src/components/Navbar.jsx
 import { Link, useLocation, useNavigate } from "react-router";
 import useAuthUser from "../hooks/useAuthUser";
-import { BellIcon, LogOutIcon,Sparkles, ArrowLeftIcon } from "lucide-react";
+import { BellIcon, LogOutIcon, Sparkles, ArrowLeftIcon } from "lucide-react";
 import ThemeSelector from "./ThemeSelector";
-// removed useLogout import in favor of a local mutation to ensure cache clearing
-
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { getFriendRequests, logout as logoutApi } from "../lib/api";
 
-const Navbar = () => {
+const Navbar = ({ showSidebar, onToggleSidebar }) => {
   const { authUser } = useAuthUser();
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isChatPage = location.pathname?.startsWith("/chat");
 
-  // NOTE: Use the SAME query key as NotificationsPage and the mutation logic:
-  // NotificationsPage uses ["friendRequests"] — using the exact same key here
-  // ensures the badge updates instantly when you setQueryData or invalidateQueries.
+  // same query key as NotificationsPage
   const { data: friendReqData } = useQuery({
-    queryKey: ["friendRequests"], // <- kept to match NotificationsPage
+    queryKey: ["friendRequests"],
     queryFn: getFriendRequests,
-    // refresh periodically so the badge stays up-to-date
     refetchInterval: 30_000,
     staleTime: 15_000,
   });
 
-  // your API returns an object like { incomingReqs: [...], acceptedReqs: [...] }
   const incomingCount = friendReqData?.incomingReqs?.length || 0;
 
-  // Local logout mutation: call server, then immediately clear authUser cache
   const { mutate: doLogout, isLoading: logoutLoading } = useMutation({
     mutationFn: logoutApi,
     onSuccess: () => {
-      // Clear cached auth user immediately so UI reacts (no refresh)
       queryClient.setQueryData(["authUser"], null);
-
-      // Optionally invalidate other user-related queries:
       queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
       queryClient.invalidateQueries({ queryKey: ["streamToken"] });
-      // navigate to login
       navigate("/login", { replace: true });
     },
     onError: () => {
-      // Even if server failed, clear client-side auth to avoid stale UI
       queryClient.setQueryData(["authUser"], null);
       navigate("/login", { replace: true });
     },
@@ -50,10 +39,26 @@ const Navbar = () => {
 
   return (
     <nav className="bg-base-200 border-b border-base-300 sticky top-0 z-30 h-16 flex items-center">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between w-full">
           {/* LEFT SECTION */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Hamburger for mobile sidebar */}
+            {showSidebar && (
+              <button
+                type="button"
+                className="btn btn-ghost btn-circle btn-sm md:hidden"
+                aria-label="Open sidebar"
+                onClick={onToggleSidebar}
+              >
+                <span className="flex flex-col gap-[3px]">
+                  <span className="w-4 h-[2px] bg-base-content rounded" />
+                  <span className="w-4 h-[2px] bg-base-content rounded" />
+                  <span className="w-4 h-[2px] bg-base-content rounded" />
+                </span>
+              </button>
+            )}
+
             {/* Back button (only on chat pages) */}
             {isChatPage && (
               <Link
@@ -66,12 +71,12 @@ const Navbar = () => {
               </Link>
             )}
 
-            {/* Logo (optional; show on chat pages if you want) */}
+            {/* Logo (only on chat pages, as before) */}
             {isChatPage && (
               <Link to="/" className="flex items-center gap-2.5">
                 <Sparkles className="size-9 text-primary" />
                 <span className="text-2xl font-bold font-mono bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary tracking-wider">
-                  ShadowMeet
+                  Chat
                 </span>
               </Link>
             )}
@@ -79,16 +84,19 @@ const Navbar = () => {
 
           {/* RIGHT SECTION */}
           <div className="flex items-center gap-3 sm:gap-4">
-            <Link to={"/notifications"} aria-label="Notifications">
-              <button className="btn btn-ghost btn-circle relative" aria-haspopup="true">
+            <Link to="/notifications" aria-label="Notifications">
+              <button
+                className="btn btn-ghost btn-circle relative"
+                aria-haspopup="true"
+              >
                 <BellIcon className="h-6 w-6 text-base-content opacity-70" />
-
-                {/* topbar badge (orange) — shows when there's at least one incoming friend request */}
                 {incomingCount > 0 && (
                   <span
                     aria-live="polite"
                     className="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-content text-xs font-semibold"
-                    title={`${incomingCount} new friend request${incomingCount > 1 ? "s" : ""}`}
+                    title={`${incomingCount} new friend request${
+                      incomingCount > 1 ? "s" : ""
+                    }`}
                   >
                     {incomingCount > 9 ? "9+" : incomingCount}
                   </span>
@@ -96,17 +104,8 @@ const Navbar = () => {
               </button>
             </Link>
 
-            {/* Theme selector */}
             <ThemeSelector />
 
-            {/* Avatar */}
-            <div className="avatar">
-              <div className="w-9 rounded-full overflow-hidden">
-                <img src={authUser?.profilePic} alt="User Avatar" />
-              </div>
-            </div>
-
-            {/* Logout button */}
             <button
               className="btn btn-ghost btn-circle"
               onClick={() => doLogout()}
@@ -121,4 +120,5 @@ const Navbar = () => {
     </nav>
   );
 };
+
 export default Navbar;

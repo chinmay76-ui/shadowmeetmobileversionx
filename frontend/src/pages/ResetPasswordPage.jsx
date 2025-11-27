@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router";
 import { axiosInstance } from "../lib/axios";
 
-// Illustration provided in conversation history — tool will map local path to URL
 const ILLUSTRATION_SRC = "/i.png";
 
 const ResetPasswordPage = () => {
@@ -56,7 +55,6 @@ const ResetPasswordPage = () => {
 
       setMessage(res.data?.message || "Password updated successfully.");
 
-      // short delay then redirect to login
       setTimeout(() => {
         try {
           navigate("/login");
@@ -66,24 +64,40 @@ const ResetPasswordPage = () => {
       }, 1200);
     } catch (err) {
       console.error(err);
-      setError(err?.response?.data?.message || "Failed to reset password. The token may be invalid or expired.");
+      setError(
+        err?.response?.data?.message ||
+          "Failed to reset password. The token may be invalid or expired."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-base-100">
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-        <div className="bg-white p-6 rounded-lg shadow-lg">
-          <h2 className="text-2xl font-semibold mb-4">Reset your password</h2>
+    <div className="min-h-screen flex items-center justify-center px-4 py-6 sm:px-6 lg:px-8 bg-base-100">
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-[1.1fr,0.9fr] gap-6 lg:gap-10 items-center">
+        {/* FORM CARD */}
+        <div className="bg-base-100 shadow-lg rounded-xl border border-base-300 px-4 py-5 sm:px-6 sm:py-6">
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4">
+            Reset your password
+          </h2>
 
-          {error && <div className="alert alert-error mb-3">{error}</div>}
-          {message && <div className="alert alert-success mb-3">{message}</div>}
+          {error && (
+            <div className="alert alert-error mb-3 text-sm sm:text-base">
+              {error}
+            </div>
+          )}
+          {message && (
+            <div className="alert alert-success mb-3 text-sm sm:text-base">
+              {message}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="label"><span className="label-text">Email</span></label>
+              <label className="label">
+                <span className="label-text text-sm sm:text-base">Email</span>
+              </label>
               <input
                 type="email"
                 className="input input-bordered w-full"
@@ -95,7 +109,11 @@ const ResetPasswordPage = () => {
             </div>
 
             <div>
-              <label className="label"><span className="label-text">New password</span></label>
+              <label className="label">
+                <span className="label-text text-sm sm:text-base">
+                  New password
+                </span>
+              </label>
               <input
                 type="password"
                 className="input input-bordered w-full"
@@ -107,7 +125,11 @@ const ResetPasswordPage = () => {
             </div>
 
             <div>
-              <label className="label"><span className="label-text">Confirm password</span></label>
+              <label className="label">
+                <span className="label-text text-sm sm:text-base">
+                  Confirm password
+                </span>
+              </label>
               <input
                 type="password"
                 className="input input-bordered w-full"
@@ -119,24 +141,39 @@ const ResetPasswordPage = () => {
             </div>
 
             <div className="flex justify-end">
-              <button className="btn btn-primary" disabled={loading}>
+              <button className="btn btn-primary btn-sm sm:btn-md" disabled={loading}>
                 {loading ? "Saving..." : "Save new password"}
               </button>
             </div>
           </form>
 
-          <div className="mt-4 text-sm opacity-70">
+          <div className="mt-4 text-xs sm:text-sm opacity-70">
             <p>
-              Already remembered your password? <a href="/login" className="text-primary hover:underline">Sign in</a>
+              Already remembered your password?{" "}
+              <a
+                href="/login"
+                className="text-primary hover:underline font-medium"
+              >
+                Sign in
+              </a>
             </p>
           </div>
         </div>
 
+        {/* ILLUSTRATION (desktop only) */}
         <div className="hidden lg:flex items-center justify-center">
           <div className="max-w-sm text-center">
-            <img src={ILLUSTRATION_SRC} alt="Reset illustration" className="w-full h-auto rounded-lg shadow" />
-            <h3 className="text-lg font-medium mt-4">Securely reset your account</h3>
-            <p className="text-sm opacity-70 mt-2">Use a strong password and don't share it with anyone.</p>
+            <img
+              src={ILLUSTRATION_SRC}
+              alt="Reset illustration"
+              className="w-full h-auto rounded-lg shadow"
+            />
+            <h3 className="text-lg font-medium mt-4">
+              Securely reset your account
+            </h3>
+            <p className="text-sm opacity-70 mt-2">
+              Use a strong password and don&apos;t share it with anyone.
+            </p>
           </div>
         </div>
       </div>

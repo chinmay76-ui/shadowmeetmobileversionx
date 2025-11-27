@@ -12,6 +12,7 @@ const ImageZoomModal = ({ imgSrc, isOpen, onClose }) => {
         src={imgSrc}
         alt="Zoomed"
         className="max-w-[90%] max-h-[90%] rounded-xl shadow-xl border border-white/20"
+        onClick={(e) => e.stopPropagation()}
       />
     </div>
   );

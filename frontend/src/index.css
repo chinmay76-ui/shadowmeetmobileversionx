@@ -32,3 +32,11 @@
 .str-chat__message-input {
   border-top: 1px solid #ddd;
 }
+
+/* LOGIN PAGE BACKGROUND */
+.bg-tree-hero {
+  background-image: url("/tree-bg.jpg"); /* keep the image in /public/tree-bg.jpg */
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+}

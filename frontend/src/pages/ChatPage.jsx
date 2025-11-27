@@ -54,12 +54,7 @@ const ChatPage = () => {
           tokenData.token
         );
 
-        //
         const channelId = [authUser._id, targetUserId].sort().join("-");
-
-        // you and me
-        // if i start the chat => channelId: [myId, yourId]
-        // if you start the chat => channelId: [yourId, myId]  => [myId,yourId]
 
         const currChannel = client.channel("messaging", channelId, {
           members: [authUser._id, targetUserId],
@@ -95,21 +90,29 @@ const ChatPage = () => {
   if (loading || !chatClient || !channel) return <ChatLoader />;
 
   return (
-    <div className="h-[93vh]">
+    <div className="min-h-[calc(100vh-4rem)] sm:h-[calc(100vh-4rem)] bg-base-100 flex">
       <Chat client={chatClient}>
         <Channel channel={channel}>
-          <div className="w-full relative">
+          {/* full-height, full-width under navbar */}
+          <div className="flex flex-col w-full h-full">
             <CallButton handleVideoCall={handleVideoCall} />
+
             <Window>
-              <ChannelHeader />
-              <MessageList />
-              <MessageInput focus />
+              <div className="flex flex-col h-full">
+                <ChannelHeader />
+                <div className="flex-1 min-h-0">
+                  <MessageList />
+                </div>
+                <MessageInput focus />
+              </div>
             </Window>
+
+            <Thread />
           </div>
-          <Thread />
         </Channel>
       </Chat>
     </div>
   );
 };
+
 export default ChatPage;
