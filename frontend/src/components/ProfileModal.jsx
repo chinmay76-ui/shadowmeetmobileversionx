@@ -94,7 +94,7 @@ export default function ProfileModal({ isOpen, onClose }) {
 
       {/* Modal */}
       <div className="relative z-[10000] w-full max-w-lg bg-base-100 rounded-xl shadow-xl p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Edit Profile</h2>
+        <h2 className="text-xl font-semibold">Edit Profile(Under Maintainance dont chnage)</h2>
 
         {/* Profile photo */}
         <div>
