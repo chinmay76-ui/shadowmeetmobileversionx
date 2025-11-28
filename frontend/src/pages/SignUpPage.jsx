@@ -328,7 +328,7 @@ const SignUpPage = () => {
               <div className="space-y-3">
                 <div className="form-control w-full">
                   <label className="label">
-                    <span className="label-text text-base-200">OTP</span>
+                    <span className="label-text text-red-200">OTP</span>
                   </label>
                   <input
                     type="text"
@@ -364,7 +364,7 @@ const SignUpPage = () => {
 
                 <div className="form-control w-full">
                   <label className="label">
-                    <span className="label-text text-base-200">Full Name</span>
+                    <span className="label-text text-red-200">Full Name</span>
                   </label>
                   <input
                     type="text"
@@ -380,7 +380,7 @@ const SignUpPage = () => {
 
                 <div className="form-control w-full">
                   <label className="label">
-                    <span className="label-text text-base-200">Password</span>
+                    <span className="label-text text-red-200">Password</span>
                   </label>
                   <input
                     type="password"
