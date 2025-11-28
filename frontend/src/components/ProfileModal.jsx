@@ -1,8 +1,10 @@
 // src/components/ProfileModal.jsx
 import React, { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { axiosInstance } from "../lib/axios";
 
 export default function ProfileModal({ isOpen, onClose }) {
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState("");
   const [profilePicBase64, setProfilePicBase64] = useState(null);
@@ -63,10 +65,9 @@ export default function ProfileModal({ isOpen, onClose }) {
         headers: { "Content-Type": "application/json" },
       });
 
-      // Auto reload to refresh sidebar avatar and name
-      setTimeout(() => {
-        window.location.reload();
-      }, 400);
+      // Refetch auth user instead of full page reload
+      // This keeps Stream connection alive
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
 
       onClose();
     } catch (err) {
@@ -93,19 +94,38 @@ export default function ProfileModal({ isOpen, onClose }) {
 
       {/* Modal */}
       <div className="relative z-[10000] w-full max-w-lg bg-base-100 rounded-xl shadow-xl p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Edit Profile(in maintenance)</h2>
+        <h2 className="text-xl font-semibold">Edit Profile</h2>
 
         {/* Profile photo */}
         <div>
-          <p className="text-sm mb-2">Maintenance note: When you change your profile photo, your user ID changes, so you are unable to chat with friends</p>
+          <p className="text-sm mb-2">Profile Photo</p>
           <div className="flex items-center gap-3">
-            
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-base-200 border">
+              {preview ? (
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-base-300" />
+              )}
+            </div>
+
+            <input type="file" accept="image/*" onChange={handleFileChange} />
           </div>
         </div>
 
         {/* Full Name */}
         <div>
           <label className="text-sm">Full Name</label>
+          <input
+            type="text"
+            className="input input-bordered w-full mt-1"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Your name"
+          />
         </div>
 
         {/* Learning Language */}

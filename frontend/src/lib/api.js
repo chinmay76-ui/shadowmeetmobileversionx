@@ -6,7 +6,12 @@
 // I also include a local test image path (one of your uploaded files) that
 // you can use as a fallback in the UI if needed:
 // Local path: /mnt/data/0256f8e0-8635-4e6a-b078-88aa611c5420.png
-export const TEST_IMAGE_LOCAL_PATH = "/mnt/data/0256f8e0-8635-4e6a-b078-88aa611c5420.png";
+// src/lib/api.js  (updated)
+
+// Local test image path (for optional UI fallback)
+// Local path: /mnt/data/0256f8e0-8635-4e6a-b078-88aa611c5420.png
+export const TEST_IMAGE_LOCAL_PATH =
+  "/mnt/data/0256f8e0-8635-4e6a-b078-88aa611c5420.png";
 
 import { axiosInstance } from "./axios";
 
@@ -19,6 +24,7 @@ export const login = async (loginData) => {
   const response = await axiosInstance.post("/auth/login", loginData);
   return response.data;
 };
+
 export const logout = async () => {
   const response = await axiosInstance.post("/auth/logout");
   return response.data;
@@ -65,13 +71,19 @@ export async function getFriendRequests() {
 }
 
 export async function acceptFriendRequest(requestId) {
-  const response = await axiosInstance.put(`/users/friend-request/${requestId}/accept`);
+  const response = await axiosInstance.put(
+    `/users/friend-request/${requestId}/accept`
+  );
   return response.data;
 }
 
+// IMPORTANT for Stream: backend must sign token with req.user._id
 export async function getStreamToken() {
   const response = await axiosInstance.get("/chat/token");
-  return response.data;
+  if (!response.data?.token) {
+    console.warn("getStreamToken: response has no token field", response.data);
+  }
+  return response.data; // { token: "..." }
 }
 
 /**
@@ -85,7 +97,6 @@ export const uploadAvatar = async (file) => {
   const formData = new FormData();
   formData.append("image", file);
 
-  // axiosInstance.baseURL should already point to your backend
   const res = await axiosInstance.post("/upload/avatar", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
@@ -95,13 +106,7 @@ export const uploadAvatar = async (file) => {
 
 /* ----------------------------
    NEW: OTP Signup helpers
-   ----------------------------
-   These call the backend endpoints you created:
-     POST /api/send-otp
-     POST /api/verify-otp-register
-   They use the same axiosInstance baseURL so they will hit your backend
-   (make sure axiosInstance.baseURL points to http://localhost:5001 or your backend port).
-*/
+   ---------------------------- */
 
 export const sendOtp = async (email) => {
   if (!email) throw new Error("Email is required for sendOtp");

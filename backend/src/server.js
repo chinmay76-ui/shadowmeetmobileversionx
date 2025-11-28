@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
@@ -13,7 +12,6 @@ import chatRoutes from "./routes/chat.route.js";
 import uploadRoutes from "./routes/upload.route.js";
 import { connectDB } from "./lib/db.js";
 import otpRoutes from "./routes/otp.route.js";
-
 
 const app = express();
 
@@ -31,7 +29,9 @@ app.use(
   })
 );
 
-app.use(express.json());
+// Increase payload size limit to handle profile pic uploads
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
 // existing mounts
@@ -49,14 +49,18 @@ try {
           app.use("/api/users", mod.default); // mounts routes defined as router.put("/me", ...)
           console.log("Mounted profile.routes.js at /api/users (provides /api/users/me).");
         } else {
-          console.warn("profile.routes.js found but did not export a default router (export default router).");
+          console.warn(
+            "profile.routes.js found but did not export a default router (export default router)."
+          );
         }
       })
       .catch((err) => {
         console.error("Failed to dynamically import profile.routes.js:", err);
       });
   } else {
-    console.log("profile.routes.js not found — skipping mount (create routes/profile.routes.js to enable /api/users/me).");
+    console.log(
+      "profile.routes.js not found — skipping mount (create routes/profile.routes.js to enable /api/users/me)."
+    );
   }
 } catch (err) {
   console.error("Error checking for profile.routes.js:", err);
@@ -88,7 +92,10 @@ async function startServer() {
       console.log(`Server is running on port ${PORT} (bound to 0.0.0.0)`);
     });
   } catch (err) {
-    console.error("Failed to start server (DB connection or other startup error):", err);
+    console.error(
+      "Failed to start server (DB connection or other startup error):",
+      err
+    );
     process.exit(1); // crash so the platform restarts or shows the failure
   }
 }
