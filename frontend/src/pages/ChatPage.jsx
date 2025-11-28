@@ -33,7 +33,7 @@ const ChatPage = () => {
   const { data: tokenData } = useQuery({
     queryKey: ["streamToken"],
     queryFn: getStreamToken,
-    enabled: !!authUser, // this will run only when authUser is available
+    enabled: !!authUser,
   });
 
   useEffect(() => {
@@ -42,6 +42,14 @@ const ChatPage = () => {
 
       try {
         console.log("Initializing stream chat client...");
+
+        // DEBUG LOGS
+        console.log("DEBUG - authUser._id:", authUser._id);
+        console.log("DEBUG - tokenData.token:", tokenData.token);
+        console.log(
+          "DEBUG - tokenData.token length:",
+          tokenData.token?.length
+        );
 
         const client = StreamChat.getInstance(STREAM_API_KEY);
 
@@ -54,12 +62,7 @@ const ChatPage = () => {
           tokenData.token
         );
 
-        //
         const channelId = [authUser._id, targetUserId].sort().join("-");
-
-        // you and me
-        // if i start the chat => channelId: [myId, yourId]
-        // if you start the chat => channelId: [yourId, myId]  => [myId,yourId]
 
         const currChannel = client.channel("messaging", channelId, {
           members: [authUser._id, targetUserId],
@@ -112,4 +115,5 @@ const ChatPage = () => {
     </div>
   );
 };
+
 export default ChatPage;

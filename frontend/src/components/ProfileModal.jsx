@@ -98,7 +98,7 @@ export default function ProfileModal({ isOpen, onClose }) {
 
         {/* Profile photo */}
         <div>
-          <p className="text-sm mb-2">Profile Photo</p>
+          <p className="text-sm mb-2">Profile Photo(dont use same photo twice to upload changes otherwise chat id change use diffrent diffrent pic)</p>
           <div className="flex items-center gap-3">
             <div className="w-20 h-20 rounded-full overflow-hidden bg-base-200 border">
               {preview ? (
