@@ -1,10 +1,8 @@
 // src/components/ProfileModal.jsx
 import React, { useEffect, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { axiosInstance } from "../lib/axios";
 
 export default function ProfileModal({ isOpen, onClose }) {
-  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState("");
   const [profilePicBase64, setProfilePicBase64] = useState(null);
@@ -65,9 +63,10 @@ export default function ProfileModal({ isOpen, onClose }) {
         headers: { "Content-Type": "application/json" },
       });
 
-      // Refetch auth user instead of full page reload
-      // This keeps Stream connection alive
-      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      // Auto reload to refresh sidebar avatar and name
+      setTimeout(() => {
+        window.location.reload();
+      }, 400);
 
       onClose();
     } catch (err) {
@@ -94,11 +93,11 @@ export default function ProfileModal({ isOpen, onClose }) {
 
       {/* Modal */}
       <div className="relative z-[10000] w-full max-w-lg bg-base-100 rounded-xl shadow-xl p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Edit Profile(Under Maintainance dont chnage)</h2>
+        <h2 className="text-xl font-semibold">Edit Profile(under maintainance dont change)</h2>
 
         {/* Profile photo */}
         <div>
-          <p className="text-sm mb-2">Profile Photo(dont use same photo twice to upload changes otherwise chat id change use diffrent diffrent pic)</p>
+          <p className="text-sm mb-2">Profile Photo</p>
           <div className="flex items-center gap-3">
             <div className="w-20 h-20 rounded-full overflow-hidden bg-base-200 border">
               {preview ? (
