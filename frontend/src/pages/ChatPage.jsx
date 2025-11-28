@@ -33,17 +33,34 @@ const ChatPage = () => {
   const { data: tokenData } = useQuery({
     queryKey: ["streamToken"],
     queryFn: getStreamToken,
-    enabled: !!authUser, // this will run only when authUser is available
+    enabled: !!authUser,
   });
 
   useEffect(() => {
     const initChat = async () => {
-      if (!tokenData?.token || !authUser) return;
+      if (!tokenData?.token || !authUser || !targetUserId) return;
+
+      // Prevent chatting with yourself
+      if (authUser._id === targetUserId) {
+        toast.error("Cannot chat with yourself");
+        setLoading(false);
+        return;
+      }
 
       try {
         console.log("Initializing stream chat client...");
+        console.log("DEBUG - authUser._id:", authUser._id);
+        console.log("DEBUG - targetUserId:", targetUserId);
+        console.log("DEBUG - tokenData.token:", tokenData.token);
+        console.log("DEBUG - tokenData.token length:", tokenData.token?.length);
 
         const client = StreamChat.getInstance(STREAM_API_KEY);
+
+        // Disconnect previous connection before connecting new user
+        if (client.userID) {
+          console.log("Disconnecting previous user:", client.userID);
+          await client.disconnectUser();
+        }
 
         await client.connectUser(
           {
@@ -54,15 +71,12 @@ const ChatPage = () => {
           tokenData.token
         );
 
-        //
+        // Create unique member list (no duplicates)
+        const uniqueMembers = [...new Set([authUser._id, targetUserId])];
         const channelId = [authUser._id, targetUserId].sort().join("-");
 
-        // you and me
-        // if i start the chat => channelId: [myId, yourId]
-        // if you start the chat => channelId: [yourId, myId]  => [myId,yourId]
-
         const currChannel = client.channel("messaging", channelId, {
-          members: [authUser._id, targetUserId],
+          members: uniqueMembers,
         });
 
         await currChannel.watch();
@@ -95,15 +109,23 @@ const ChatPage = () => {
   if (loading || !chatClient || !channel) return <ChatLoader />;
 
   return (
-    <div className="h-[93vh]">
+    <div className="h-dvh sm:h-[calc(100vh-4rem)] w-full bg-base-100">
       <Chat client={chatClient}>
         <Channel channel={channel}>
-          <div className="w-full relative">
+          <div className="w-full h-full flex flex-col relative">
             <CallButton handleVideoCall={handleVideoCall} />
             <Window>
-              <ChannelHeader />
-              <MessageList />
-              <MessageInput focus />
+              <div className="flex flex-col h-full">
+                <div className="flex-shrink-0">
+                  <ChannelHeader />
+                </div>
+                <div className="flex-1 min-h-0 overflow-hidden">
+                  <MessageList />
+                </div>
+                <div className="flex-shrink-0">
+                  <MessageInput focus />
+                </div>
+              </div>
             </Window>
           </div>
           <Thread />
@@ -112,4 +134,5 @@ const ChatPage = () => {
     </div>
   );
 };
+
 export default ChatPage;
